@@ -2,7 +2,7 @@ import './App.css';
 import TodoTemplate from './components/TodoTemplate';
 import TodoInsert from './components/TodoInsert';
 import TodoList from './components/TodoList';
-import { useState } from 'react';
+import { useState, useRef, useCallback } from 'react';
 
 function App() {
   const [todos, setTodos] = useState([
@@ -23,8 +23,26 @@ function App() {
     },
   ])
 
+  //고윳값으로 사용될 id
+  //ref를 사용하여 변수 담기 ( 렌더링이 필요없기 때문 )
+  const nextId = useRef(4);
+
+  const onInsert = useCallback(
+    text => {
+      const todo = {
+        id: nextId.current,
+        text,
+        checked: false
+      };
+      console.log(todo);
+      setTodos(todos.concat(todo));
+      nextId.current += 1;
+    },
+    [todos],
+  )
+
   return <TodoTemplate>
-    <TodoInsert />
+    <TodoInsert onInsert={onInsert} />
     <TodoList todos={todos} />
   </TodoTemplate>
 }
