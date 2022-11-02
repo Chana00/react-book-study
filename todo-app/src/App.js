@@ -35,29 +35,27 @@ function App() {
         checked: false
       };
 
-      setTodos(todos.concat(todo));
+      setTodos(todos => todos.concat(todo));
       nextId.current += 1;
-    },
-    [todos],
+    }, []
   )
 
   const onToggle = useCallback(
     id => {
       setTodos(
-        todos.map(todo =>
-          todo.id === id ? { ...todo, checked: !todo.checked } : todo,
-        )
+        todos =>
+          todos.map(todo =>
+            todo.id === id ? { ...todo, checked: !todo.checked } : todo,
+          )
       )
-    },
-    [todos]
+    }, []
   )
 
   //id를 받으면 해당 id의 todo를 지운다
   const onRemove = useCallback(
     id => {
-      setTodos(todos.filter(todo => todo.id !== id))
-    },
-    [todos],
+      setTodos(todos => todos.filter(todo => todo.id !== id))
+    }, []
   )
 
   return <TodoTemplate>
