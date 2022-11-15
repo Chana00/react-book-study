@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import NewsItem from './NewsItem';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import usePromise from '../lib/usePromise';
 
 const NewsListBlock = styled.div`
     box-sizing: border-box;
@@ -18,26 +19,12 @@ const NewsListBlock = styled.div`
 `;
 
 function NewsList({ category }) {
-    const [articles, setArticles] = useState();
-    const [loading, setLoading] = useState(false);
-
-    useEffect(() => {
-        //async를 사용하는 함수 따로 선언
-        const fetchData = async () => {
-            setLoading(true);
-            try {
-                const query = category === 'all' ? '' : `&category=${category}`;
-                const res = await axios.get(`https://newsapi.org/v2/top-headlines?country=kr${query}&apiKey=7169c9b12af24019ba0d1a3c9c83a1f4`)
-                setArticles(res.data.articles);
-            }
-            catch (e) {
-                console.log(e);
-            }
-            setLoading(false);
-        }
-
-        fetchData();
+    const [loading, response, error] = usePromise(() => {
+        const query = category === 'all' ? '' : `&category=${category}`;
+        return axios.get(`https://newsapi.org/v2/top-headlines?country=kr${query}&apiKey=7169c9b12af24019ba0d1a3c9c83a1f4`,);
     }, [category])
+
+
 
     //로딩 중
     if (loading) {
@@ -45,10 +32,15 @@ function NewsList({ category }) {
     }
 
     // 아직 값이 설정되지 않았을 때
-    if (!articles) {
+    if (!response) {
         return null;
     }
 
+    if (error) {
+        return <NewsListBlock>에러 발생!</NewsListBlock>
+    }
+
+    const { articles } = response.data;
     return (
         <NewsListBlock>
             {articles.map(article => (
