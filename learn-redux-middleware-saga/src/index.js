@@ -4,14 +4,22 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { applyMiddleware, legacy_createStore as createStore } from 'redux';
-import rootReducer from './modules';
+import rootReducer, { rootSaga } from './modules';
 import { Provider } from 'react-redux';
-import loggerMiddleware from './lib/loggerMiddleware';
 import { createLogger } from 'redux-logger';
 import thunk from 'redux-thunk';
+import createSagaMiddleware from 'redux-saga'
+import { composeWithDevTools } from 'redux-devtools-extension';
 
 const logger = createLogger();
-const store = createStore(rootReducer, applyMiddleware(logger, thunk));
+const sagaMiddleware = createSagaMiddleware();
+
+//logger를 사용하는 겨우, logger가 가장 마지막에 와야한다
+const store = createStore(
+  rootReducer,
+  composeWithDevTools(applyMiddleware(thunk, sagaMiddleware, logger))
+);
+sagaMiddleware.run(rootSaga); // 루트 사가를 실행해준다 ( 스토어 생성 후 )
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
